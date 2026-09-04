@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>PCODE Grapher — Ghidra pseudocode CFG</title>
+<!-- Chống flash theme: áp class 'light' sớm (trước khi bundle chạy) -->
+<script>try{var _t=localStorage.getItem('pcode.theme');var _m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)');if(_t==='light'||(_t!=='dark'&&_m&&_m.matches)){document.documentElement.classList.add('light');}}catch(e){}</script>
+</head>
+<body>
+<!-- U3: nội dung fallback — hiển thị khi mở TĨNH (file:// hoặc server tĩnh
+     không qua Vite) vì ES module /src/main.jsx không tải được. Khi chạy qua
+     `npm run dev` (mở /index.dev.html), React thay toàn bộ nội dung #app. -->
+<div id="app">
+  <div style="font:14px/1.7 system-ui,sans-serif;max-width:640px;margin:15vh auto;padding:0 20px;color:#c9d1d9;background:#0d1117;min-height:100vh">
+    <h2 style="color:#58a6ff">⚡ PCODE Grapher — chưa chạy được từ đây</h2>
+    <p>File <code>index.html</code> này là <b>bản dev</b> (cần Vite). Chọn một cách chạy:</p>
+    <ul>
+      <li><b>Chạy ngay không cần npm:</b> phục vụ thư mục gốc qua HTTP (app đã build sẵn trong <code>assets/</code>) — ví dụ đặt <b>Tool Dir</b> của bridge Ghidra trỏ vào thư mục này rồi mở URL bridge in ra.</li>
+      <li><b>Dev (live-reload):</b> <code>npm install</code> rồi <code>npm run dev</code> (tự mở <code>/index.dev.html</code>).</li>
+      <li><b>Build lại bản tĩnh:</b> <code>npm run build</code> — script tự cập nhật <code>index.html</code> + <code>assets/</code> ở gốc.</li>
+    </ul>
+  </div>
+</div>
+<script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

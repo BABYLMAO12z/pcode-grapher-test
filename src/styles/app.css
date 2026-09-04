@@ -1,0 +1,803 @@
+/* =========================================================================
+ * PCODE Grapher · css/style.css — toàn bộ giao diện
+ * Palette dark v5 (user lab → harmonized):
+ *   nền sâu navy #01020e · accent xanh lạnh · syntax tách hue rõ
+ *   · note = cyan-teal (khác accent indigo) · KHÔNG chấm nền board
+ * Color harmony: 1 accent lạnh + 1 accent ấm (cam attn) + semantic ok/bad/warn.
+ * ========================================================================= */
+
+:root{
+  --font-ui:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,"Noto Sans",sans-serif;
+  --ln-h:19px; /* FIX(35): 1 dòng code = đúng 19px, dùng chung CSS ↔ layout.js */
+  --font-mono:ui-monospace,"Cascadia Code","SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --radius:8px; --radius-sm:6px; --radius-pill:16px;
+  --shadow:0 2px 10px rgba(0,0,0,.38); --shadow-sm:0 1px 4px rgba(0,0,0,.28);
+
+  /* chrome — deep navy (lab) · v5.1 quieter surfaces */
+  --bg:#01020e; --panel:#0e1018; --panel2:#151a26; --line:#243246;
+  --txt:#c4cdd8; --dim:#7a8798;
+  --accent:#4d7cff; --accent-strong:#2f5aef; --accent-hover:#6b93ff;
+  --accent-muted:rgba(77,124,255,.12);
+  --ok:#3ddc6a; --bad:#e03e36; --warn:#c9b44a; --attn:#ffa657;
+  --input-bg:#080b14; --chrome:rgba(1,2,14,.88); --scroll:#243246;
+
+  /* block — viền trung tính, bớt “khung neon” */
+  --node-bg:#121820; --node-border:#2c3a4e; --node-txt:#c4cdd8;
+  --board-grid:transparent; /* v5: bỏ chấm nền — board phẳng */
+  --sel:rgba(77,124,255,.28);
+  --ln-seq-bg:rgba(77,124,255,.05); --ln-seq-bar:#3d6fe0;
+  --ln-ctl-bg:rgba(45,140,255,.10); --ln-ctl-bar:#3d9bff;
+  --cond-border:#3a6a9a; --cond-fill:rgba(45,140,255,.05);
+  --lbl-border:#9a8440; --lbl-bg:rgba(224,180,60,.07);
+  --terminal-bar:#3a4a5c;
+  /* entry: CHỈ marker nhỏ — không fill/dash toàn block (v5.1) */
+  --entry-mark:#4d7cff;
+
+  /* syntax — mỗi category 1 hue, tránh neon đụng nhau (lab có 4–5 xanh lá) */
+  --syn-kw:#ff6b7a;          /* rose — tách bad */
+  --syn-ty:#5eb1ff;          /* azure type */
+  --syn-fn:#b794f6;          /* lavender fn (lab green → tách khỏi ok/num/addr) */
+  --syn-gop:#e6c07b;         /* soft amber ghidra-op */
+  --syn-num:#e0b43c;         /* gold number (lab neon green → gold) */
+  --syn-str:#3dd9a8;         /* mint string */
+  --syn-com:#6b7c8f;         /* muted comment */
+  --syn-addr:#2ecfc0;        /* teal FUN_/DAT_ */
+  --syn-const:#d4c091;       /* sand const */
+  --syn-op:#9aabbc;          /* soft op — không lấy màu token */
+  --syn-lbl:#e0b43c;         /* = num family */
+  /* var: sky-teal lab #83beb7, sáng hơn chút cho AA trên node */
+  --syn-var:#8eccc4;
+}
+:root.light{
+  --bg:#f4f6f8; --panel:#ffffff; --panel2:#eef1f4; --line:#d0d7de;
+  --txt:#1f2328; --dim:#656d76;
+  --accent:#0969da; --accent-strong:#0969da; --accent-hover:#218bff;
+  --accent-muted:rgba(9,105,218,.10);
+  --ok:#1a7f37; --bad:#cf222e; --warn:#9a6700; --attn:#bc4c00;
+  --input-bg:#ffffff; --chrome:rgba(255,255,255,.90); --scroll:#d0d7de;
+
+  --node-bg:#ffffff; --node-border:#c3ccd6; --node-txt:#1f2328;
+  --sel:rgba(9,105,218,.20);
+  --ln-seq-bg:rgba(9,105,218,.04); --ln-seq-bar:#0969da;
+  --ln-ctl-bg:rgba(9,105,218,.08); --ln-ctl-bar:#0550ae;
+  --cond-border:#8aa0bc; --cond-fill:rgba(9,105,218,.04);
+  --lbl-border:#a08600; --lbl-bg:rgba(160,134,0,.07);
+  --terminal-bar:#8a94a1;
+  --entry-mark:#0969da;
+  --shadow:0 2px 10px rgba(31,35,40,.07); --shadow-sm:0 1px 4px rgba(31,35,40,.05);
+
+  /* light: kw rose (không bad đỏ); num/const/lbl = hoàng; addr teal.
+     AA-fix (audit WCAG trên nền tint seq/ctl/noteGrad): kw/gop/str cũ
+     (#d12470/#bc4c00/#0b8a5f) chỉ đạt 3.7–4.3:1 trên nền note → đậm thêm để
+     ≥4.6:1; const/lbl gom hẳn về num family để đồng nhất + đạt chuẩn. */
+  --syn-kw:#c61050; --syn-ty:#0550ae; --syn-fn:#6e40c9; --syn-gop:#ad4500;
+  --syn-num:#8a5a00; --syn-str:#0a7655; --syn-com:#6e7781; --syn-addr:#0e7490;
+  --syn-const:#8a5a00; --syn-op:#1f2328; --syn-lbl:#8a5a00;
+  --syn-var:#001080;
+}
+
+.skip-link{position:absolute;top:-40px;left:0;background:var(--accent);color:#fff;padding:6px 12px;font-size:12px;z-index:100;border-radius:0 0 var(--radius-sm) 0;transition:top .2s ease}
+.skip-link:focus{top:0;outline:none}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+  font:13px/1.45 var(--font-ui);overflow:hidden;
+  font-feature-settings:"ss01","cv11";
+  transition:background-color .25s ease,color .25s ease}
+#side,#board,.node,button,select,textarea,input{
+  transition:background-color .25s ease,border-color .25s ease,color .25s ease,box-shadow .25s ease}
+::selection{background:var(--sel)}
+#app{display:flex;flex-direction:column;height:100%}
+
+/* ------------------------------- header -------------------------------- */
+header{display:flex;align-items:center;gap:10px;padding:7px 14px;background:var(--panel);
+  border-bottom:1px solid var(--line);flex:0 0 auto}
+header h1{font-size:13.5px;margin:0;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+header h1 b{color:var(--accent);font-weight:700}
+header .sub{color:var(--dim);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.9}
+
+main{display:flex;flex:1;min-height:0}
+
+/* ------------------------------ side panel ------------------------------ */
+#side{width:430px;min-width:280px;flex:0 0 auto;display:flex;flex-direction:column;border-right:1px solid var(--line);
+  background:var(--panel);padding:10px;gap:10px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--scroll) transparent}
+#side::-webkit-scrollbar{width:8px}
+#side::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:4px}
+#side::-webkit-scrollbar-track{background:transparent}
+.sect{display:flex;flex-direction:column;gap:6px}
+.sect-t{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--dim);user-select:none}
+.sect + .sect{border-top:1px solid var(--line);padding-top:8px}
+.sect.grow{flex:1;min-height:150px}
+#src{flex:1;min-height:120px;resize:none;background:var(--input-bg);color:var(--txt);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:8px;font:12px/1.5 var(--font-mono);
+  outline:none;tab-size:4;scrollbar-width:thin;scrollbar-color:var(--scroll) transparent}
+#src::-webkit-scrollbar{width:9px;height:9px}
+#src::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:5px}
+#src:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+button,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:var(--radius-sm);
+  padding:5px 10px;font-size:12px;cursor:pointer;height:27px;display:inline-flex;align-items:center;gap:4px}
+button:hover,select:hover{border-color:var(--accent);color:var(--txt)}
+button:active{transform:translateY(.5px)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent-muted);outline-offset:1px}
+button.primary{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff;font-weight:600}
+button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#fff}
+button.attn{background:transparent;border-color:var(--attn);color:var(--attn);font-weight:600}
+button.attn:hover{background:color-mix(in srgb,var(--attn) 14%,transparent);color:var(--attn);filter:none}
+label.chk{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--dim);user-select:none;cursor:pointer}
+label.chk:hover{color:var(--txt)}
+#hlInput{flex:1;min-width:120px;background:var(--input-bg);border:1px solid var(--line);border-radius:var(--radius-sm);
+  color:var(--txt);padding:4px 8px;font:12px var(--font-mono);outline:none;height:27px}
+#hlInput:focus{border-color:var(--attn);box-shadow:0 0 0 2px color-mix(in srgb,var(--attn) 22%,transparent)}
+#hlClear{padding:5px 8px;color:var(--dim)}
+#hlClear:hover{color:var(--bad);border-color:var(--bad)}
+#hlInfo{font-size:11px;color:var(--dim);min-height:14px}
+#warn{font-size:11px;color:var(--warn);min-height:14px}
+#stats{font-size:11px;color:var(--dim)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--dim)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:-1px}
+.legend .lg-kw{background:var(--syn-kw)} .legend .lg-ty{background:var(--syn-ty)}
+.legend .lg-fn{background:var(--syn-fn)} .legend .lg-gop{background:var(--syn-gop)}
+.legend .lg-addr{background:var(--syn-addr)} .legend .lg-num{background:var(--syn-num)}
+.legend .lg-str{background:var(--syn-str)} .legend .lg-com{background:var(--syn-com)}
+/* v4: biến có MỘT màu duy nhất → swatch legend một màu (bỏ gradient rainbow) */
+.legend .lg-var{background:var(--syn-var)}
+.legend .lg-seq{background:var(--ln-seq-bar)} .legend .lg-ctl{background:var(--ln-ctl-bar)}
+.hint{font-size:10.5px;color:var(--dim);line-height:1.7}
+.hint kbd{background:var(--input-bg);border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:10px;font-family:var(--font-mono)}
+
+/* ------------------------------ splitter -------------------------------- */
+#splitter{flex:0 0 5px;cursor:col-resize;background:transparent;position:relative;z-index:6;
+  transition:background .12s ease}
+#splitter:hover,body.resizing #splitter{background:var(--accent-muted)}
+body.resizing{cursor:col-resize;user-select:none}
+body.resizing iframe,body.resizing #board{pointer-events:none}
+
+/* -------------------------------- board --------------------------------- */
+#board{flex:1;min-height:0;position:relative;overflow:hidden;cursor:grab;touch-action:none;user-select:none;
+  -webkit-user-drag:none;
+  background:var(--bg)}
+#board.grabbing{cursor:grabbing}
+/* Lưới nền: CHỈ dots của React Flow (đồng bộ pan/zoom). Bản cũ có THÊM lưới
+   CSS 24px tĩnh chồng lên dots gap=22 → moiré lệch pha, nền bẩn. */
+/* FIX(35): chiều cao block PHẢI suy ra được từ SỐ DÒNG code.
+ * line-height 1.5 × 12.5px = 18,75px (lẻ) nên mỗi dòng lệch một chút, block 44
+ * dòng lệch cả chục pixel giữa số đo lúc layout và lúc vẽ ⇒ mũi tên (bám mép
+ * trên/dưới node) trỏ hụt. Chốt --ln-h = 19px nguyên để
+ * height = số dòng × 19 + padding + viền, đúng tuyệt đối. */
+.node{position:absolute;font:12.5px/var(--ln-h) var(--font-mono);
+  background:var(--node-bg);border:1px solid var(--node-border);border-radius:var(--radius);padding:8px 11px;color:var(--node-txt);
+  white-space:pre;box-shadow:var(--shadow);user-select:none;cursor:grab;
+  transition:opacity .18s ease-out,border-color .18s ease-out,box-shadow .18s ease-out}
+.node:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--node-border))}
+#board.grabbing .node{cursor:grabbing}
+/* cond: viền hơi lạnh + fill rất nhẹ — không double-ring */
+.node.k-cond{border-color:var(--cond-border);background:var(--cond-fill);box-shadow:var(--shadow)}
+/* ENTRY v5.1: trông như block thường + vạch trái mỏng + tag "in"
+   (trước: dashed accent + fill accent-muted = nhảy cả graph) */
+.node.k-entry{
+  border-style:solid;border-color:var(--node-border);background:var(--node-bg);
+  box-shadow:inset 3px 0 0 var(--entry-mark),var(--shadow);
+}
+.node.k-label{border-color:var(--lbl-border);border-radius:12px;padding:2px 10px;box-shadow:none;background:var(--lbl-bg)}
+.node.terminal{border-bottom:2px solid var(--terminal-bar);box-shadow:var(--shadow)}
+.node.tail{border-bottom:2px solid color-mix(in srgb,var(--accent) 65%,var(--node-border))}
+.tag{position:absolute;top:-8px;right:6px;font-size:9px;color:var(--dim);background:var(--node-bg);
+  padding:0 5px;border-radius:3px;border:1px solid var(--line);opacity:.92;letter-spacing:.02em}
+.tag .tag-entry{
+  color:var(--entry-mark);font-weight:700;margin-left:4px;opacity:.9;
+  font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;
+}
+.ln{white-space:pre;height:var(--ln-h);line-height:var(--ln-h)}
+/* Nền dòng: cùng họ accent, khác độ đậm + vạch trái. Padding node = 8px 11px. */
+.ln.ln-seq,.ln.ln-ctl{margin:0 -11px;padding:0 11px 0 14px}
+.ln.ln-seq{background:var(--ln-seq-bg);box-shadow:inset 3px 0 0 var(--ln-seq-bar)}
+.ln.ln-ctl{background:var(--ln-ctl-bg);box-shadow:inset 3px 0 0 var(--ln-ctl-bar)}
+.more{color:var(--dim);font-style:italic;cursor:pointer;border-top:1px dashed var(--line);margin-top:3px;
+  padding-top:2px;font-size:11px;line-height:16px;height:22px;box-sizing:border-box}
+.more:hover{color:var(--accent)}
+#board.nhover .node{opacity:.75}
+#board.nhover .node.focus{opacity:1;border-color:var(--attn);box-shadow:0 0 0 1px color-mix(in srgb,var(--attn) 50%,transparent),0 0 12px color-mix(in srgb,var(--attn) 18%,transparent),var(--shadow)}
+#board.nhover .node.focus2{opacity:.92}
+#board.nhover path.edge{opacity:.50}
+#board.nhover path.edge.focus{opacity:1;stroke-width:2.8;filter:drop-shadow(0 0 3px color-mix(in srgb,var(--attn) 55%,transparent))}
+#board.nhover text.elbl{opacity:.50}
+#board.nhover text.elbl.focus{opacity:1}
+#board.dimmed .node{opacity:.75}
+#board.dimmed .node.lit{opacity:1}
+#board.dimmed .node.lit.hit{border-color:var(--attn);box-shadow:0 0 0 1px color-mix(in srgb,var(--attn) 45%,transparent),var(--shadow)}
+#board.dimmed path.edge{opacity:.50}
+#board.dimmed path.edge.lit{opacity:.85}
+#board.dimmed text.elbl{opacity:.50}
+#board.dimmed text.elbl.lit{opacity:.85}
+#board.dimmed .node.lit .tk[data-key]:not(.on){opacity:.65}
+.tk.kw{color:var(--syn-kw)}
+.tk.ty{color:var(--syn-ty)}
+.tk.fn{color:var(--syn-fn)}
+.tk.gop{color:var(--syn-gop)}
+.tk.num{color:var(--syn-num)}
+.tk.str{color:var(--syn-str)}
+.tk.com{color:var(--syn-com);font-style:italic}
+.tk.addr{color:var(--syn-addr)}
+.tk.const{color:var(--syn-const)}
+.tk.op{color:var(--syn-op)}
+.tk.lbl{color:var(--syn-lbl);font-weight:bold}
+.tk[data-key]{cursor:pointer;border-radius:2px}
+.tk[data-key]:hover{background:color-mix(in srgb,var(--attn) 18%,transparent)}
+.tk.on{outline:1px solid var(--attn);background:color-mix(in srgb,var(--attn) 28%,transparent)}
+.hlNav{color:var(--accent);cursor:pointer;user-select:none;font-weight:600;padding:0 2px;border-radius:3px}
+.hlNav:hover,.hlNav:focus-visible{background:var(--accent-muted);outline:none}
+.hlPos{color:var(--dim);font-variant-numeric:tabular-nums}
+.edge{fill:none;stroke-width:1.7;pointer-events:stroke;transition:opacity .22s ease-out,stroke-width .22s ease-out}
+.edge.dashed{stroke-dasharray:6 4}
+.edge.loop{stroke-dasharray:8 4;stroke-width:1.5}
+.edge:hover{stroke-width:3;opacity:.95}
+.elbl{font:10px var(--font-mono);font-weight:bold;paint-order:stroke;stroke:var(--bg);stroke-width:1.5px;transition:opacity .12s ease}
+
+/* ------------------------------- toolbar -------------------------------- */
+/* U1: toolbar nằm trong #boardTop (hàng riêng phía trên canvas) — KHÔNG còn
+   position:absolute đè lên graph. wrap để màn hẹp vẫn dùng được cả 16 nút. */
+#boardTop{display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap;
+  padding:8px 12px 0;min-height:0}
+#toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;
+  margin-left:auto;max-width:100%;
+  background:var(--chrome);border:1px solid var(--line);border-radius:8px;padding:5px;
+  backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
+#toolbar button{background:var(--panel2)}
+/* icon SVG inline (src/ui/icons.jsx) — căn baseline với chữ trong nút */
+.icn{vertical-align:-2.4px;flex:0 0 auto}
+/* vạch chia 4 cụm chức năng của toolbar */
+#toolbar .tb-sep{width:1px;height:18px;background:var(--line);margin:0 2px;flex:0 0 auto}
+#toolbar .zgrp{display:flex;gap:0}
+#toolbar .zgrp button{border-radius:0}
+#toolbar .zgrp button:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+#toolbar .zgrp button:last-child{border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+#zPct{min-width:44px;text-align:center;font-size:11px;color:var(--dim);background:var(--panel2);
+  border:1px solid var(--line);border-left:none;border-right:none;padding:5px 4px;cursor:pointer;user-select:none;
+  display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+#zPct:hover{color:var(--txt)}
+
+/* ------------------------------- minimap -------------------------------- */
+#minimap{position:absolute;right:12px;bottom:36px;width:210px;height:150px;z-index:5;touch-action:none;
+  background:var(--chrome);border:1px solid var(--line);border-radius:var(--radius-sm);cursor:crosshair;
+  transition:opacity .22s ease-out;backdrop-filter:blur(8px)}
+#board.dimmed #minimap{opacity:.55}
+#side{max-width:72vw}
+
+/* ------------------------------ status bar ------------------------------ */
+#statusbar{position:absolute;left:0;right:0;bottom:0;height:25px;z-index:4;display:flex;align-items:center;
+  gap:14px;padding:0 12px;background:color-mix(in srgb,var(--panel) 94%,transparent);border-top:1px solid var(--line);
+  font-size:11px;color:var(--dim);user-select:none;pointer-events:none}
+#statusbar .grow{flex:1}
+#statusbar .sb-hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#statusbar .sb-hint .k{font-weight:700;color:var(--accent)}
+#statusbar .sb-zoom{min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+#statusbar b{color:var(--txt);font-weight:600}
+
+/* ------------------------------ debug HUD ------------------------------- */
+#dbg{position:absolute;left:12px;bottom:36px;width:330px;max-height:46%;z-index:8;
+  background:var(--chrome);border:1px solid var(--line);border-radius:var(--radius);
+  font:10.5px/1.5 var(--font-mono);color:var(--txt);padding:8px 10px;
+  overflow:auto;user-select:text;cursor:default;scrollbar-width:thin;scrollbar-color:var(--scroll) transparent;backdrop-filter:blur(8px)}
+#dbg::-webkit-scrollbar{width:7px}
+#dbg::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:4px}
+#dbg .dbd-title{display:flex;justify-content:space-between;align-items:center;
+  font-weight:bold;color:var(--attn);margin-bottom:4px}
+#dbg button{padding:2px 8px;font-size:10.5px;height:auto}
+#dbgState b.ok{color:var(--ok)} #dbgState b.bad{color:var(--bad)}
+#dbgCounts{color:var(--dim);white-space:pre-wrap}
+#dbgLog{list-style:none;margin:4px 0;padding:0;max-height:150px;overflow:auto}
+#dbgLog li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim)}
+#dbgLog li:first-child{color:var(--txt)}
+.dbd-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+#dbg label{color:var(--warn)}
+#dbgFps.good{color:var(--ok)} #dbgFps.bad{color:var(--bad)}
+#board.safemode *{transition:none!important;animation:none!important;box-shadow:none!important;
+  backdrop-filter:none!important}
+
+#dbg .compToggle{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;margin-left:6px}
+#dbg .compToggle:hover{color:var(--txt)}
+
+/* -------------------------------- toast --------------------------------- */
+/* BUGFIX: rule v1 đặt opacity:0 trên #toast và chỉ hiện khi <div id="toast"
+   có class .show — nhưng v2 KHÔNG bao giờ thêm class đó (class .show nằm trên
+   item con), rule v2 cuối file lại không reset opacity → mọi toast VÔ HÌNH.
+   Cấu trúc đúng: #toast = container cột giữa đáy; .toast = pill item. */
+#toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.toast{background:var(--accent-strong);color:#fff;font-size:12px;padding:7px 16px;
+  border-radius:var(--radius-pill);box-shadow:var(--shadow);white-space:nowrap;max-width:80vw;
+  overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(8px);
+  transition:opacity .18s ease,transform .18s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* --------------------------- section collapse -------------------------- */
+.sect-t{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.sect-t::after{content:"▾";font-size:9px;color:var(--dim);margin-left:6px}
+.sect.collapsed .sect-t::after{content:"▸"}
+.sect.collapsed .sect-t~*{display:none}
+.sect.collapsed{gap:0;padding-top:0;border-top:none}
+.sect.collapsed .sect-t{margin-bottom:0}
+
+/* --------------------------- minimap toggle --------------------------- */
+#mmToggle{position:absolute;right:12px;bottom:190px;z-index:5;width:28px;height:28px;
+  background:var(--chrome);border:1px solid var(--line);border-radius:var(--radius-sm);
+  color:var(--dim);font-size:13px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(4px)}
+#mmToggle:hover{color:var(--txt);border-color:var(--accent)}
+
+
+/* --------------------------- hotkey overlay --------------------------- */
+#keyOverlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+#keyOverlay.show{display:flex}
+.keyHelp{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:18px 24px;max-width:520px;width:90%;box-shadow:var(--shadow);
+  font-size:12px;line-height:1.7}
+.keyHelp h3{margin:0 0 10px;font-size:14px;color:var(--accent)}
+.keyHelp kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;font-size:11px;font-family:var(--font-mono)}
+.keyHelp .close{float:right;background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer}
+.keyHelp .close:hover{color:var(--txt)}
+
+/* --------------------------- search options --------------------------- */
+.searchOpts{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:11px;color:var(--dim)}
+.searchOpts label{display:flex;align-items:center;gap:3px;cursor:pointer}
+.searchOpts input[type=checkbox]{margin:0}
+
+/* --------------------------- responsive -------------------------------- */
+@media (max-width:860px){
+  main{flex-direction:column}
+  #side{width:100%!important;max-width:100%;max-height:44%;min-width:0;
+    border-right:none;border-bottom:1px solid var(--line)}
+  #splitter{display:none}
+  .sect.grow{min-height:110px}
+  #src{min-height:80px;max-height:26vh}
+  #minimap{width:150px;height:104px}
+  #statusbar .sb-hint{display:none}
+}
+@media (max-width:560px){
+  header{flex-wrap:wrap;gap:6px}
+  header .sub{display:none}
+  header h1{font-size:13px}
+  #toolbar{flex-wrap:wrap;right:8px;top:8px;max-width:calc(100% - 16px)}
+  #minimap{display:none}
+  #dbg{width:calc(100% - 24px);max-height:40%}
+  .legend{font-size:9.5px}
+}
+
+/* --------------------------- line numbers ----------------------------- */
+.srcWrap{display:flex;flex:1;min-height:120px;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+#lineNums{flex:0 0 36px;background:var(--panel2);color:var(--dim);font:12px/1.5 var(--font-mono);
+  padding:8px 4px;text-align:right;overflow:hidden;user-select:none;white-space:pre}
+#lineNums span{display:block}
+#lineNums span.err{color:var(--bad);font-weight:bold}
+.srcWrap #src{flex:1;min-height:0;border:none;border-radius:0}
+.srcWrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-muted)}
+
+/* ----------------------------- Ghidra Live ----------------------------- */
+.row .grow{flex:1;min-width:0}
+#ghUrl,#ghToken,#ghFilter{background:var(--input-bg);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--txt);
+  padding:4px 8px;font:12px var(--font-mono);outline:none;height:27px}
+#ghUrl:focus,#ghToken:focus,#ghFilter:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-muted)}
+#ghStatus{font-size:11px;color:var(--dim);line-height:1.5;min-height:14px}
+#ghStatus.ok{color:var(--ok)} #ghStatus.bad{color:var(--bad)}
+.ghSecurity{font-size:10.5px;line-height:1.4;color:var(--dim);padding:4px 7px;border-left:2px solid var(--line);background:color-mix(in srgb,var(--dim) 10%,transparent);min-height:28px}
+.ghHelp{min-height:28px}
+.ghSecurity.on{color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,transparent)}
+.ghSecurity.off{color:var(--warn);border-color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.ghSecurity.bad{color:var(--bad);border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.ghHelp{font-size:10.5px;line-height:1.45;color:var(--warn);padding:5px 7px;border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:5px;background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.ghHelp a{color:var(--accent);text-decoration:underline;cursor:pointer}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dim);vertical-align:0}
+.dot.on{background:var(--ok);box-shadow:0 0 6px color-mix(in srgb,var(--ok) 70%,transparent)}
+.dot.off{background:var(--dim)}
+.ghFuncs{width:100%;font:11.5px var(--font-mono);background:var(--input-bg);color:var(--txt);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:4px;height:auto;scrollbar-width:thin;scrollbar-color:var(--scroll) transparent}
+.ghFuncs::-webkit-scrollbar{width:8px}
+.ghFuncs::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:4px}
+.ghFuncs:focus{border-color:var(--accent)}
+.ghFuncs:disabled{opacity:.5}
+.tk.live{cursor:pointer;border-bottom:1px dotted color-mix(in srgb,var(--attn) 70%,transparent)}
+.tk.live:hover{background:color-mix(in srgb,var(--attn) 18%,transparent)}
+.tk.flash{animation:tkflash .8s ease-out}
+@keyframes tkflash{0%{background:color-mix(in srgb,var(--attn) 55%,transparent)}40%{background:color-mix(in srgb,var(--attn) 22%,transparent)}100%{background:transparent}}
+
+/* ============ AI NOTES (v1.9.3 — giao diện) ============
+   Tím = "giọng" riêng của note, khác hẳn xanh (search) / cam (focus) để KHÔNG
+   nhầm lẫn: badge/chip/nét nối đều tím, không bao giờ giống mũi tên if/else.
+   Nguyên tắc thị giác:
+     · trạng thái luôn = MÀU + ICON + CHỮ (✓ khớp / ⚠ code đã đổi / ✗ không thấy)
+     · card: header sticky (cuộn vẫn biết đang xem block nào) + footer nút sticky
+     · note text BÔI ĐEN được (user-select:text) — board thì user-select:none
+     · không animation khi #board.safemode (rule toàn cục) hoặc prefers-reduced-motion */
+:root{
+  /* v5 note: cyan-teal (lab) — tách khỏi accent indigo + fn lavender */
+  --note:#4db8e8; --note-2:#3a8fd4; --note-strong:#2f7ec4;
+  --note-muted:rgba(77,184,232,.16); --note-soft:rgba(77,184,232,.07);
+  --note-line:rgba(77,184,232,.36); --note-glow:rgba(77,184,232,.45);
+  --note-grad:linear-gradient(180deg,rgba(77,184,232,.14),rgba(77,184,232,.02));
+  --note-bar:linear-gradient(180deg,var(--note),var(--note-2));
+}
+:root.light{
+  --note:#6e40c9; --note-2:#8250df; --note-strong:#6e40c9;
+  --note-muted:rgba(110,64,201,.10); --note-soft:rgba(110,64,201,.045);
+  --note-line:rgba(110,64,201,.30); --note-glow:rgba(110,64,201,.28);
+  --note-grad:linear-gradient(180deg,rgba(110,64,201,.11),rgba(110,64,201,.02));
+  --note-bar:linear-gradient(180deg,var(--note),var(--note-2));
+}
+@media (prefers-reduced-motion:reduce){
+  .noteCard,.notePanel,.noteBadge,.edgeDot,.nc-edge,.pp-sentence,#notesHud .nh-seg button{
+    transition:none!important;animation:none!important}
+}
+
+/* ---------- HUD notes: góc TRÁI-TRÊN board (mode + số lượng + hàm) ---------
+   Thấy ngay: đang ở mode nào, bao nhiêu note khớp/lệch, note của HÀM nào. */
+/* U1: HUD notes in-flow trong #boardTop (trước đây absolute top-left đè canvas) */
+#notesHud{display:flex;align-items:center;flex:0 1 auto;min-width:0;max-width:100%;
+  gap:7px;padding:4px 8px 4px 4px;background:var(--chrome);backdrop-filter:blur(8px);
+  border:1px solid var(--note-line);border-radius:var(--radius-pill);
+  box-shadow:var(--shadow-sm);user-select:none;max-width:calc(100% - 24px)}
+
+#notesHud .nh-ico{width:22px;height:22px;flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;border-radius:50%;background:var(--note-grad);
+  border:1px solid var(--note-line);font-size:11px}
+#notesHud .nh-seg{display:flex;gap:2px;background:var(--note-soft);
+  border:1px solid color-mix(in srgb,var(--note) 16%,transparent);
+  border-radius:var(--radius-pill);padding:2px}
+#notesHud .nh-seg button{font:600 11px var(--font-ui);color:var(--dim);background:transparent;
+  border:0;border-radius:var(--radius-pill);padding:3px 9px;cursor:pointer;white-space:nowrap;
+  transition:background .12s ease,color .12s ease}
+#notesHud .nh-seg button:hover{color:var(--note);background:var(--note-muted)}
+#notesHud .nh-seg button.on{background:var(--note-strong);color:#fff;box-shadow:var(--shadow-sm)}
+#notesHud .nh-sep{width:1px;height:16px;background:var(--line);flex:0 0 auto}
+#notesHud .nh-cnt{display:flex;align-items:center;gap:4px}
+#notesHud .nh-c{font:700 10.5px/1 var(--font-mono);padding:3px 6px;border-radius:var(--radius-pill);
+  color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,transparent);cursor:default;
+  font-variant-numeric:tabular-nums}
+#notesHud .nh-c.stale{color:var(--warn);background:color-mix(in srgb,var(--warn) 17%,transparent)}
+#notesHud .nh-c.orphan{color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+#notesHud .nh-c.zero{opacity:.38}
+#notesHud .nh-fn{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font:600 10.5px var(--font-mono);color:var(--note);opacity:.92}
+#notesHud .nh-hint{font:11px/1.3 var(--font-ui);color:var(--dim);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+#notesHud .nh-hint b{color:var(--note);font-weight:700}
+#notesHud .nh-btn{font:11.5px var(--font-ui);background:var(--panel2);color:var(--txt);
+  border:1px solid var(--line);border-radius:var(--radius-pill);padding:3px 9px;cursor:pointer;
+  white-space:nowrap;transition:border-color .12s ease,color .12s ease}
+#notesHud .nh-btn:hover{border-color:var(--note);color:var(--note)}
+#notesHud .nh-btn.on{background:var(--note-strong);color:#fff;border-color:transparent}
+#notesHud .nh-btn.danger:hover{border-color:var(--bad);color:var(--bad)}
+@media (max-width:900px){#notesHud .nh-fn{display:none}}
+
+/* ---------- badge góc phải-trên của block -------------------------------- */
+.noteBadge{position:absolute;right:-10px;top:-10px;z-index:3;min-width:17px;height:17px;
+  padding:0 5px;border-radius:10px;border:1.5px solid var(--note);color:var(--note);
+  background:radial-gradient(circle at 35% 25%,color-mix(in srgb,var(--note) 34%,var(--bg)),var(--bg));
+  font:700 9.5px/14px var(--font-ui);text-align:center;cursor:pointer;user-select:none;
+  box-shadow:0 0 0 2px var(--bg),var(--shadow-sm);
+  transition:transform .12s ease,box-shadow .12s ease}
+.noteBadge:hover{transform:scale(1.25);box-shadow:0 0 0 2px var(--bg),0 0 12px var(--note-glow)}
+.noteBadge.stale{border-color:var(--warn);color:var(--warn);
+  background:radial-gradient(circle at 35% 25%,color-mix(in srgb,var(--warn) 34%,var(--bg)),var(--bg))}
+.noteBadge.stale:hover{box-shadow:0 0 0 2px var(--bg),0 0 12px color-mix(in srgb,var(--warn) 55%,transparent)}
+.noteBadge.orphan{border-color:var(--bad);color:var(--bad);opacity:.92;
+  background:radial-gradient(circle at 35% 25%,color-mix(in srgb,var(--bad) 34%,var(--bg)),var(--bg))}
+.noteBadge.orphan:hover{box-shadow:0 0 0 2px var(--bg),0 0 12px color-mix(in srgb,var(--bad) 55%,transparent)}
+.node.k-label .noteBadge{right:-6px;top:-11px}
+/* block ĐANG có card mở: badge sáng để biết note nào đang xem */
+.node.note-open .noteBadge{box-shadow:0 0 0 2px var(--bg),0 0 14px var(--note-glow);transform:scale(1.15)}
+
+/* ---------- Ô NOTE cạnh block (mode "full") — dạng CALLOUT ---------------
+   box-sizing:border-box → width 292px ĐÚNG bằng slot ELK dự trù (NOTE_PANEL_W),
+   không tràn sang block kế bên như bản content-box cũ. */
+.notePanel{position:absolute;width:292px;box-sizing:border-box;z-index:1;
+  background:var(--note-grad),var(--panel);
+  border:1px solid var(--note-line);border-left:3px solid var(--note);
+  border-radius:10px;box-shadow:var(--shadow);
+  padding:8px 11px 9px 10px;cursor:text;pointer-events:auto;
+  user-select:text;-webkit-user-select:text;font:13.5px/1.62 var(--font-ui);
+  transition:box-shadow .14s ease,border-color .14s ease}
+.notePanel:hover{box-shadow:var(--shadow),0 0 0 1px color-mix(in srgb,var(--note) 28%,transparent)}
+.notePanel.stale{border-color:color-mix(in srgb,var(--warn) 50%,transparent);
+  border-left-color:var(--warn);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--warn) 9%,transparent),transparent),var(--panel)}
+.notePanel.orphan{border-color:color-mix(in srgb,var(--bad) 50%,transparent);
+  border-left-color:var(--bad);opacity:.92;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bad) 8%,transparent),transparent),var(--panel)}
+.notePanel .np-head{display:flex;align-items:center;gap:5px;margin-bottom:5px;
+  font:700 10.5px var(--font-mono);color:var(--note)}
+.notePanel .np-ref{background:var(--note-muted);color:var(--note);border-radius:6px;
+  padding:1px 6px;font:700 10.5px var(--font-mono);letter-spacing:.02em}
+.notePanel .np-head .np-st{font:700 9.5px var(--font-ui);padding:1px 7px;
+  border-radius:var(--radius-pill);letter-spacing:.02em}
+.notePanel .np-head .np-st.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.notePanel .np-head .np-st.stale{color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,transparent)}
+.notePanel .np-head .np-st.orphan{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.notePanel .np-note{white-space:pre-wrap;word-break:break-word;color:var(--txt)}
+.notePanel .np-plain{position:relative;margin-top:6px;padding:2px 0 2px 9px;
+  border-left:2px solid var(--note-line);
+  font-style:italic;color:var(--dim);font-size:12.5px;line-height:1.55;
+  white-space:pre-wrap;word-break:break-word}
+.notePanel .np-manual{margin-left:auto;font:700 9.5px var(--font-ui);color:var(--note);
+  background:var(--note-muted);border-radius:var(--radius-pill);padding:1px 6px;opacity:1}
+
+/* ---------- CARD note (click badge/chấm) — header + body + footer --------
+   Con #noteLayer → toạ STAGE, scale cùng graph. Rộng 292 = cùng slot với panel. */
+.noteCard{position:absolute;z-index:60;width:292px;box-sizing:border-box;max-height:600px;
+  overflow:auto;overscroll-behavior:contain;pointer-events:auto;
+  display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--note-line);border-radius:10px;
+  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 1px color-mix(in srgb,var(--note) 16%,transparent);
+  padding:0;font:14px/1.6 var(--font-ui);
+  user-select:text;-webkit-user-select:text;cursor:default;
+  animation:ncIn .16s ease-out}
+@keyframes ncIn{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}
+.noteCard::-webkit-scrollbar{width:9px}
+.noteCard::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:5px;
+  border:2px solid var(--panel)}
+.noteCard::-webkit-scrollbar-thumb:hover{background:var(--note-line)}
+/* header sticky: cuộn dài vẫn thấy đang xem block nào */
+.noteCard .nc-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:6px;
+  padding:9px 10px 8px;background:var(--note-grad),var(--panel);
+  border-bottom:1px solid var(--note-line);
+  border-radius:11px 11px 0 0;font:700 12px var(--font-ui);
+  box-shadow:0 6px 12px -10px rgba(0,0,0,.8);
+  cursor:move;user-select:none} /* U5: dragHandle kéo card = header (thân card để bôi đen) */
+.noteCard .nc-ref{color:var(--note);font-family:var(--font-mono);font-size:12px;
+  background:var(--note-muted);border-radius:6px;padding:1px 7px}
+.noteCard .nc-state{font:700 9.5px var(--font-ui);padding:2px 7px;border-radius:var(--radius-pill);
+  letter-spacing:.02em;white-space:nowrap}
+.noteCard .nc-state.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.noteCard .nc-state.stale{color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,transparent)}
+.noteCard .nc-state.orphan{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.noteCard .nc-manual{font:700 9.5px var(--font-ui);color:var(--note);
+  background:var(--note-muted);border-radius:var(--radius-pill);padding:2px 6px}
+.noteCard .nc-id{color:var(--dim);font-weight:400;margin-left:auto;font-family:var(--font-mono);
+  font-size:10.5px;opacity:.85}
+.noteCard .nc-x{flex:0 0 auto;width:22px;height:22px;display:flex;align-items:center;
+  justify-content:center;font:13px var(--font-ui);color:var(--dim);background:transparent;
+  border:1px solid transparent;border-radius:6px;cursor:pointer;line-height:1}
+.noteCard .nc-x:hover{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent);
+  background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.noteCard .nc-body{padding:10px 11px 2px;flex:1 1 auto;min-width:0;
+  user-select:text;-webkit-user-select:text} /* U5: bôi đen note/code trong thân card */
+.noteCard .nc-cap{display:flex;align-items:center;gap:6px;margin:0 0 4px;
+  font:700 9px var(--font-ui);letter-spacing:.1em;color:var(--dim)}
+.noteCard .nc-cap::after{content:"";flex:1;height:1px;background:var(--line)}
+.noteCard .nc-cap .nc-live{letter-spacing:0;font-weight:600;color:var(--note);opacity:.9}
+.noteCard .nc-code{font:12px/1.55 var(--font-mono);color:var(--txt);white-space:pre-wrap;
+  word-break:break-word;background:var(--panel2);border-radius:var(--radius-sm);
+  padding:7px 9px;margin:0 0 9px;max-height:96px;overflow:auto;
+  border:1px solid var(--line);border-left:2px solid var(--note-line);
+  opacity:.92;scrollbar-width:thin}
+.noteCard .nc-code::-webkit-scrollbar{width:7px}
+.noteCard .nc-code::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:4px}
+.noteCard .nc-note{margin:0 0 7px;white-space:pre-wrap;word-break:break-word;font-size:14px;
+  color:var(--txt)}
+.noteCard .nc-plain{position:relative;margin:0 0 9px;padding:3px 0 3px 10px;
+  border-left:2px solid var(--note-line);
+  font-style:italic;color:var(--dim);font-size:13px;line-height:1.55;
+  white-space:pre-wrap;word-break:break-word}
+.noteCard .nc-sub{display:flex;align-items:center;gap:6px;margin:10px 0 5px;
+  font:700 9.5px var(--font-ui);letter-spacing:.09em;color:var(--note)}
+.noteCard .nc-sub::after{content:"";flex:1;height:1px;background:var(--note-line);opacity:.5}
+.noteCard .nc-edge{display:flex;gap:7px;align-items:flex-start;padding:5px 7px;margin:0 0 4px;
+  background:var(--panel2);border-radius:var(--radius-sm);cursor:pointer;
+  border:1px solid transparent;transition:border-color .12s ease,transform .12s ease}
+.noteCard .nc-edge:hover{border-color:var(--note-line);transform:translateX(2px)}
+.noteCard .nc-edge .ec-k{flex:0 0 auto;font:700 9.5px/1.8 var(--font-mono);border-radius:5px;
+  padding:0 6px;color:var(--bg);white-space:nowrap}
+.noteCard .nc-edge .ec-t{min-width:0;flex:1;font-size:11.5px;line-height:1.5;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.noteCard .nc-edge .ec-go{flex:0 0 auto;color:var(--note);font-size:11px;opacity:0;
+  transition:opacity .12s ease}
+.noteCard .nc-edge:hover .ec-go{opacity:1}
+.noteCard .nc-link{display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;
+  color:var(--note);cursor:pointer;font-family:var(--font-mono);font-size:11.5px;
+  background:var(--note-soft);border:1px solid var(--note-line);
+  border-radius:var(--radius-pill);padding:1px 8px}
+.noteCard .nc-link:hover{background:var(--note-muted)}
+/* ✏️ sửa note thủ công trong card */
+.noteCard textarea.nc-edit{width:100%;box-sizing:border-box;min-height:72px;resize:vertical;
+  background:var(--input-bg);color:var(--txt);border:1.5px solid var(--note);
+  border-radius:var(--radius-sm);padding:7px 9px;font:13px/1.55 var(--font-mono);outline:none}
+.noteCard textarea.nc-edit:focus{box-shadow:0 0 0 3px var(--note-muted)}
+/* footer nút sticky: luôn với tới được dù note dài */
+.noteCard .nc-btns{position:sticky;bottom:0;z-index:2;display:flex;gap:5px;margin-top:10px;
+  flex-wrap:wrap;padding:8px 10px;background:color-mix(in srgb,var(--panel) 92%,transparent);
+  backdrop-filter:blur(6px);border-top:1px solid var(--line);border-radius:0 0 11px 11px}
+.noteCard .nc-btns button{font:11.5px var(--font-ui);background:var(--panel2);color:var(--txt);
+  border:1px solid var(--line);border-radius:var(--radius-sm);padding:4px 9px;cursor:pointer;
+  transition:border-color .12s ease,color .12s ease,background .12s ease}
+.noteCard .nc-btns button:hover{border-color:var(--note);color:var(--note);
+  background:var(--note-soft)}
+.noteCard .nc-btns button.primary{background:var(--note-strong);color:#fff;border-color:transparent}
+.noteCard .nc-btns button.primary:hover{filter:brightness(1.12);color:#fff}
+
+/* ---------- chip Bxx/Exx trong text note (bấm = nhảy tới) ---------------- */
+.noteRefChip{display:inline-block;border:1px dashed var(--note-line);color:var(--note);
+  background:var(--note-soft);border-radius:6px;padding:0 5px;margin:0 1px;
+  font:11px var(--font-mono);cursor:pointer;user-select:none;line-height:1.6;
+  transition:background .12s ease,border-color .12s ease}
+.noteRefChip:hover{background:var(--note-muted);border-color:var(--note)}
+.noteRefChip.is-static{cursor:default}
+
+/* ---------- token màu bên trong NOTE/prose (src/notes/richtext.js) -------
+   Class .rt-* RIÊNG — dùng .tk sẽ dính rule tương tác (data-key, sau này
+   search/dbl-click). Màu vẫn trỏ CHUNG biến --syn-* với block → dark/light
+   đổi theme tự khớp; biến (rt var) tô inline varColor() parity tuyệt đối. */
+.rt-kw{color:var(--syn-kw)} .rt-ty{color:var(--syn-ty)} .rt-fn{color:var(--syn-fn)}
+.rt-gop{color:var(--syn-gop)} .rt-num{color:var(--syn-num)} .rt-str{color:var(--syn-str)}
+.rt-addr{color:var(--syn-addr)} .rt-const{color:var(--syn-const)}
+/* 📖 hover câu / 🧭 luồng chính — glow tím riêng, KHÔNG đụng .lit (search) */
+.node.pl{box-shadow:0 0 0 2px var(--note),0 0 16px color-mix(in srgb,var(--note) 45%,transparent),var(--shadow)}
+path.edge.pl{stroke:var(--note)!important;stroke-width:3px!important;opacity:1!important}
+
+/* ---------- 📖 panel luồng logic chữ viết --------------------------------
+   Góc PHẢI-DƯỚI nhưng NẰM TRÊN minimap (không che 🗺); minimap ẩn thì tụt xuống. */
+#prosePanel{position:absolute;right:12px;bottom:198px;width:360px;z-index:8;
+  max-height:min(56%,calc(100% - 250px));
+  display:flex;flex-direction:column;background:var(--panel);
+  border:1px solid var(--note-line);border-radius:10px;box-shadow:var(--shadow);
+  overflow:hidden;animation:ncIn .16s ease-out}
+#prosePanel .pp-head{display:flex;align-items:center;gap:7px;padding:9px 10px;flex:0 0 auto;
+  background:var(--note-grad),var(--panel);border-bottom:1px solid var(--note-line);
+  font:700 11.5px var(--font-ui);color:var(--note)}
+#prosePanel .pp-head .pp-ttl{display:flex;align-items:center;gap:6px;min-width:0}
+#prosePanel .pp-head .pp-fn{font:600 10.5px var(--font-mono);color:var(--dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#prosePanel .pp-count{font:700 9.5px/1 var(--font-mono);color:var(--note);
+  background:var(--note-muted);border-radius:var(--radius-pill);padding:3px 7px}
+#prosePanel .pp-head .pp-grow{flex:1}
+#prosePanel .pp-head button{font:11.5px var(--font-ui);background:var(--panel2);color:var(--txt);
+  border:1px solid var(--line);border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;
+  user-select:none;transition:border-color .12s ease,color .12s ease}
+#prosePanel .pp-head button:hover{border-color:var(--note);color:var(--note)}
+#prosePanel .pp-head button.on{background:var(--note-strong);color:#fff;border-color:transparent}
+#prosePanel .pp-body{overflow:auto;padding:6px 10px 12px;scrollbar-width:thin}
+#prosePanel .pp-body::-webkit-scrollbar{width:9px}
+#prosePanel .pp-body::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:5px;
+  border:2px solid var(--panel)}
+#prosePanel .pp-sub{display:flex;align-items:center;gap:6px;margin:11px 0 5px;
+  font:700 9.5px var(--font-ui);letter-spacing:.09em;color:var(--note)}
+#prosePanel .pp-sub:first-child{margin-top:4px}
+#prosePanel .pp-sub::after{content:"";flex:1;height:1px;background:var(--note-line);opacity:.45}
+#prosePanel .pp-prog{font:700 9.5px var(--font-mono);color:var(--dim);letter-spacing:0}
+#prosePanel .pp-sentence{position:relative;margin:0 0 4px;padding:6px 9px 6px 26px;
+  border-radius:var(--radius-sm);cursor:pointer;font-size:12px;line-height:1.55;
+  border:1px solid transparent;transition:background .12s ease,border-color .12s ease}
+#prosePanel .pp-sentence::before{content:attr(data-num);position:absolute;left:8px;top:6px;
+  font:700 9.5px var(--font-mono);color:var(--note);opacity:.75}
+#prosePanel .pp-sentence:hover{background:var(--note-soft);border-color:var(--note-line)}
+#prosePanel .pp-sentence.pl{background:var(--note-muted);
+  box-shadow:inset 2px 0 0 var(--note);border-color:var(--note-line)}
+#prosePanel .pp-list{margin:0;padding-left:20px;font-size:12px;line-height:1.6}
+#prosePanel .pp-list li{margin:0 0 3px;padding-left:2px}
+#prosePanel .pp-list li::marker{color:var(--note)}
+#prosePanel .pp-checks{list-style:none;margin:0;padding:0}
+#prosePanel .pp-checks label{display:flex;gap:8px;align-items:flex-start;font-size:12px;
+  line-height:1.55;padding:4px 6px;cursor:pointer;border-radius:var(--radius-sm);
+  border:1px solid transparent;transition:background .12s ease}
+#prosePanel .pp-checks label:hover{background:var(--note-soft);border-color:var(--note-line)}
+#prosePanel .pp-checks input{margin-top:3px;flex:0 0 auto;accent-color:var(--note);
+  width:13px;height:13px;cursor:pointer}
+#prosePanel .pp-checks li.done label{opacity:.55}
+#prosePanel .pp-checks li.done span{text-decoration:line-through}
+#prosePanel .pp-empty{color:var(--dim);font-size:11.5px;font-style:italic;padding:4px 2px}
+#prosePanel .pp-empty b{color:var(--note);font-style:normal}
+@media (max-width:700px){#prosePanel{width:calc(100% - 24px);right:12px}}
+
+/* ---------- 📥 paste modal — ô DÁN JSON do AI trả về --------------------- */
+#pasteModal{position:absolute;inset:0;z-index:80;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,0,0,.58);backdrop-filter:blur(3px);padding:16px}
+#pasteModal[hidden]{display:none}
+#pasteModal .pm-box{width:min(760px,94vw);max-height:88vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--note-line);border-radius:14px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px color-mix(in srgb,var(--note) 14%,transparent);
+  overflow:hidden;user-select:text;-webkit-user-select:text;animation:ncIn .18s ease-out}
+#pasteModal .pm-head{display:flex;align-items:center;gap:9px;padding:12px 14px;flex:0 0 auto;
+  background:var(--note-grad),var(--panel);border-bottom:1px solid var(--note-line);
+  font:700 13.5px var(--font-ui);color:var(--note)}
+#pasteModal .pm-head .pm-ico{width:26px;height:26px;flex:0 0 auto;display:flex;
+  align-items:center;justify-content:center;border-radius:8px;font-size:13px;
+  background:var(--note-muted);border:1px solid var(--note-line)}
+#pasteModal .pm-head .pm-ttl{display:flex;flex-direction:column;gap:1px;min-width:0}
+#pasteModal .pm-head .pm-sub{font:11px var(--font-ui);color:var(--dim);font-weight:400}
+#pasteModal .pm-head button{margin-left:auto;flex:0 0 auto;font:15px var(--font-ui);
+  background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+  border-radius:var(--radius-sm);width:28px;height:28px;cursor:pointer;line-height:1}
+#pasteModal .pm-head button:hover{border-color:var(--bad);color:var(--bad);
+  background:color-mix(in srgb,var(--bad) 12%,transparent)}
+#pasteModal .pm-steps{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 0}
+#pasteModal .pm-step{display:flex;align-items:center;gap:6px;font:11px var(--font-ui);
+  color:var(--dim);background:var(--panel2);border:1px solid var(--line);
+  border-radius:var(--radius-pill);padding:3px 9px}
+#pasteModal .pm-step b{color:var(--note);font:700 10px var(--font-mono)}
+#pmText{flex:1 1 auto;min-height:280px;resize:vertical;margin:10px 14px 4px;padding:11px 13px;
+  font:13px/1.6 var(--font-mono);color:var(--txt);background:var(--input-bg);
+  border:1.5px dashed var(--note-line);border-radius:10px;outline:none;
+  user-select:text;-webkit-user-select:text;transition:border-color .12s ease,box-shadow .12s ease}
+#pmText:focus{border-color:var(--note);border-style:solid;box-shadow:0 0 0 3px var(--note-muted)}
+#pasteModal .pm-foot{display:flex;align-items:center;gap:9px;padding:9px 14px 13px;flex:0 0 auto}
+#pasteModal .pm-hint{flex:1;font-size:11.5px;color:var(--dim);line-height:1.45}
+#pasteModal .pm-hint b{color:var(--note)}
+#pasteModal .pm-foot button{font:13px var(--font-ui);background:var(--panel2);color:var(--txt);
+  border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 13px;cursor:pointer;
+  transition:border-color .12s ease,color .12s ease}
+#pasteModal .pm-foot button:hover{border-color:var(--note);color:var(--note)}
+#pasteModal .pm-foot button.primary{background:var(--note-strong);color:#fff;
+  border-color:transparent;font-weight:700}
+#pasteModal .pm-foot button.primary:hover{filter:brightness(1.12);color:#fff}
+
+/* =========================================================================
+ * v2 (React Flow) — bổ sung. Phần #stage/#zoom/#minimap/#edges thủ công ở trên
+ * giữ lại làm nguồn biến màu + style .node/.ln/.tk; React Flow render node
+ * bằng chính class .node nên mọi màu/khoảng cách giữ y hệt bản cũ.
+ * ========================================================================= */
+
+/* Node trong React Flow: bỏ position:absolute (RF tự transform) */
+.react-flow__node-cfg,
+.react-flow__node-noteCard { background: none; border: none; padding: 0; }
+.react-flow__node-cfg .node,
+.react-flow__node-noteCard .noteCard { position: static; }
+/* FIX(32): block PHẢI phủ kín đúng ô node của React Flow.
+ * Handle (điểm bám mũi tên) nằm trên WRAPPER .react-flow__node có width/height
+ * lấy từ measureNodes(); nếu .node bên trong tự co giãn theo nội dung (font web
+ * nạp xong sau lần đo đầu — thấy rõ ngay sau F5) thì hộp NHÌN THẤY lệch khỏi hộp
+ * neo → mũi tên cắm vào khoảng trống cạnh block. Ép .node = 100% ô node để hai
+ * hộp luôn trùng nhau dù số đo có sai lệch. */
+.react-flow__node-cfg .node {
+  min-width: 100%; min-height: 100%; box-sizing: border-box;
+}
+#measureHost .node { box-sizing: border-box; }
+
+/* container đo ẩn (measureNodes) */
+#measureHost {
+  position: absolute; left: -99999px; top: 0;
+  visibility: hidden; pointer-events: none; contain: layout style;
+}
+#measureHost .node { position: static; display: inline-block; }
+
+.react-flow__handle { opacity: 0; pointer-events: none; }
+.react-flow__attribution { display: none; }
+
+/* ===================== T10 — shell v2 bổ sung =========================
+   Các khối mới của bản React: #boardWrap (chứa board + toolbar + HUD),
+   danh sách số dòng dạng div (thay <pre> cũ), modal 📥 Notes, overlay ?. */
+#boardWrap{position:relative;flex:1;min-width:0}
+/* U1: #board không còn absolute inset:0 (phủ cả hàng #boardTop) — giờ là item
+   flex:1 trong #boardWrap (column), chỉ chiếm phần DƯỚI toolbar/HUD. */
+#boardWrap #board{position:relative;flex:1;min-height:0}
+#lineNums div{height:1.5em;line-height:1.5em}
+#lineNums div.err{color:var(--bad,#f85149);font-weight:700;background:rgba(248,81,73,.14)}
+#warn:empty{display:none}
+#warn.on{display:block}
+
+/* modal dán JSON notes */
+#pasteModal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;padding:24px}
+#pasteModal .pm-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  width:min(760px,94vw);max-height:86vh;display:flex;flex-direction:column;gap:8px;padding:12px}
+#pasteModal .pm-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+#pasteModal .pm-head button{margin-left:auto}
+#pasteModal .pm-btns{display:flex;gap:6px;justify-content:flex-end}
+#pmText{flex:1;min-height:320px;resize:vertical;font-family:var(--font-mono);font-size:12px;
+  background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:8px}
+
+/* nút đang bật trên toolbar / HUD */
+#toolbar button.on,.nh-btn.on{background:var(--accent-muted);border-color:var(--accent)}
+
+/* v5.1 — React Flow chrome dịu, khớp panel */
+.react-flow__controls{
+  box-shadow:var(--shadow-sm);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  background:var(--chrome);
+}
+.react-flow__controls-button{
+  background:var(--panel2)!important;border-bottom:1px solid var(--line)!important;
+  fill:var(--dim)!important;width:28px;height:28px;
+}
+.react-flow__controls-button:hover{background:var(--panel)!important;fill:var(--txt)!important}
+.react-flow__minimap{
+  background:var(--chrome)!important;border:1px solid var(--line)!important;border-radius:8px!important;
+}
