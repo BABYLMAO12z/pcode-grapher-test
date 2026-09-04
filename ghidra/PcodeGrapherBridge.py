@@ -61,7 +61,7 @@ REQUIRE_TOKEN   = True           # False = MỌI trang web (Firefox/Safari, chư
 TIMEOUT_SECS    = 30             # timeout mỗi lần decompile
 TOOL_DIR        = ""             # thư mục chứa index.html/js/css của tool;
                                  # để "" thì không phục vụ tool tĩnh (chỉ API).
-ALLOWED_HOSTS   = ("127.0.0.1", "localhost", "[0:0:0:0:0:0:0:1]", "[::1]")
+ALLOWED_HOSTS   = ("127.0.0.1", "localhost", "0:0:0:0:0:0:0:1", "::1")
 
 # ---- context dùng chung ---------------------------------------------------
 class Ctx:
@@ -123,9 +123,20 @@ def parse_query(qstr):
 def addr_hex(a):
     return "0x" + a.toString() if a is not None else None
 
+def _host_name(header):
+    # Tách host khỏi header "Host", chịu được IPv6 "[::1]:8765" (port tùy chọn).
+    # Bản cũ split(":")[0] biến "[::1]:8765" thành "[" → loopback IPv6 LUÔN 403
+    # dù có trong ALLOWED_HOSTS. Parity với hostName() của plugin Java
+    # (so sánh tên host KHÔNG ngoặc — xem ALLOWED_HOSTS ở trên).
+    h = (header or "").strip().lower()
+    if h.startswith("["):
+        end = h.find("]")
+        return h[1:end] if end > 1 else ""
+    return h.split(":")[0]
+
 def security_ok(exch, q):
     # Host whitelist (chống DNS rebinding)
-    host = (exch.getRequestHeaders().getFirst("Host") or "").split(":")[0].lower()
+    host = _host_name(exch.getRequestHeaders().getFirst("Host"))
     if host not in ALLOWED_HOSTS:
         send_text(exch, 403, "forbidden host"); return False
     # token
@@ -210,9 +221,14 @@ def h_functions(exch, q):
             "isExternal": False, "isThunk": f.isThunk(),
             "signature": f.getSignature().getPrototypeString(True, True)
         })
-        if len(items) >= off + lim: break
-    total = len(items); items = items[off:off + lim]
-    send_json(exch, 200, {"items": items, "total": total, "offset": off})
+        # Quét dư 1 item để biết còn hàm khớp phía sau không (hasMore) mà không cần
+        # duyệt hết program — parity với plugin Java + tests/mock_bridge.js
+        # (client hiện "— còn nhiều hàm nữa —" để user gõ lọc thêm).
+        if len(items) >= off + lim + 1: break
+    has_more = len(items) > off + lim
+    items = items[off:off + lim]
+    send_json(exch, 200, {"items": items, "total": len(items), "returned": len(items),
+                           "offset": off, "limit": lim, "hasMore": has_more})
 
 def find_func(q):
     a = q.get("address", "")
