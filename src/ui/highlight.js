@@ -19,10 +19,25 @@ export function applyHighlights() {
     if (n.data && n.data.cfgNode) positions[n.data.cfgNode.id] = n.position;
   }
 
+  // Text note theo node (đọc từ store nên luôn tươi — data.note trên rfNodes chỉ
+  // cập nhật khi rebuild, còn applyNoteText chỉ gọi refreshNoteNodes).
+  let noteTextById = null;
+  const nm = s.notes && s.notes.match;
+  if (s.notes && nm && nm.nodeToSavedRef) {
+    const savedByRef = {};
+    for (const b of s.notes.blocks || []) if (b && b.ref) savedByRef[b.ref] = b;
+    noteTextById = {};
+    for (const [nid, ref] of Object.entries(nm.nodeToSavedRef)) {
+      const b = savedByRef[ref];
+      if (b) noteTextById[nid] = ((b.note || '') + '\n' + (b.plain || '')).trim();
+    }
+  }
+
   const r = computeHighlights(g, s.hlKeys, {
     opts: s.opts,
     positions,
     adjacency: getAdjacency(),
+    noteTextById,
   });
 
   // 🧭 Luồng chính và search DÙNG CHUNG .lit/.dimmed — có search thì tắt

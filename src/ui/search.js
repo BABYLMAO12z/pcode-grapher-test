@@ -102,9 +102,33 @@ export function computeHighlights(graphData, hlKeys, ctx = {}) {
   let fallback = false;
   const single = keys.length === 1 ? keys[0] : null;
   if (single && !litNodes.size && single.length >= 1) {
-    fallback = true;
     for (const n of graphData.nodes || []) {
       if (matchKey(nodePlainOf(n), single, opts)) litNodes.add(n.id);
+    }
+    // Chỉ báo "(khớp văn bản)" khi fallback THẬT SỰ khớp block — cờ true oan
+    // (khớp 0 block) sẽ nhận vơ công của pass note-text chạy sau và báo sai
+    // "(khớp văn bản) · 0 block" khi cả hai đều không khớp.
+    fallback = litNodes.size > 0;
+  }
+
+  // Khớp trong NOTE text (F6: highlight phủ "mọi block + cả note text", không chỉ
+  // code trong block). Node chỉ khớp ở đây → lit + viền cam (.hit) như fallback
+  // full-text để phân biệt với khớp token trực tiếp. ctx.noteTextById do
+  // src/ui/highlight.js dựng từ store (note+plain theo nodeToSavedRef); vắng nó
+  // thì hàm giữ nguyên hành vi cũ.
+  const noteOnly = new Set();
+  let noteHits = 0;
+  const noteTextById = (ctx && ctx.noteTextById) || null;
+  if (noteTextById) {
+    for (const n of graphData.nodes || []) {
+      if (litNodes.has(n.id)) continue;
+      const t = noteTextById[n.id];
+      if (!t) continue;
+      if (keys.some((k) => matchKey(t, k, opts))) {
+        litNodes.add(n.id);
+        noteOnly.add(n.id);
+        noteHits++;
+      }
     }
   }
 
@@ -114,6 +138,7 @@ export function computeHighlights(graphData, hlKeys, ctx = {}) {
   const hit = {}; // node chỉ khớp nhờ full-text fallback → viền cam (.hit) như bản cũ
   for (const id of litNodes) lit['n' + id] = true;
   if (fallback) for (const id of litNodes) hit['n' + id] = true;
+  for (const id of noteOnly) hit['n' + id] = true;
 
   // edge chạm node lit cũng sáng ("đường nối" không bị mờ)
   const litEdges = new Set();
@@ -161,6 +186,7 @@ export function computeHighlights(graphData, hlKeys, ctx = {}) {
     '🔍 ' + keys.join(', ') + (fallback ? ' (khớp văn bản)' : '') +
     ' · ' + total + ' block' +
     (tokenHits && !fallback ? ' / ' + tokenHits + ' lượt khớp' : '') +
+    (noteHits ? ' · ' + noteHits + ' khớp trong note' : '') +
     (optNames.length ? ' · ' + optNames.join('/') : '') +
     ' · Ctrl+click thêm · Esc bỏ';
 

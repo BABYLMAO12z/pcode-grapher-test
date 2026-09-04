@@ -176,6 +176,10 @@ function pushLiveNames() {
   const prev = useStore.getState().liveNames;
   let changed = !prev || prev.size !== names.size;
   if (!changed) for (const [k, v] of names) if (prev.get(k) !== v) { changed = true; break; }
+  // Nội dung giống hệt (vd setLiveSymbols gọi 2 lần, resolve trả dữ liệu cũ) →
+  // không đụng store: tránh map lại toàn bộ rfNodes (= re-render mọi block/edge
+  // vô ích) và giữ nguyên identity của Map cho subscriber (RichText cache ctx).
+  if (!changed) return prev;
   useStore.setState({ liveNames: names });
   // node đã dựng rồi → bơm Map mới vào data để React re-render (không rebuild)
   const s = useStore.getState();

@@ -57,7 +57,11 @@ export function toFlowGraph(graphData, layout, ctx) {
         colorVars,
         liveNames,
         expanded: !!expanded[n.id],
-        note: hit ? hit.note.text || hit.note.summary || '' : null,
+        // hit.note là saved-block {ref, note, plain, …} (xem importAINotes trong
+        // src/notes/store.js) — KHÔNG có .text/.summary nên trước đây field này
+        // luôn ra '' (dead field). Giữ text note thật để search (F6) và consumer
+        // khác dùng được; null = block không có note.
+        note: hit && hit.note ? (hit.note.note || '') : null,
         noteState: hit ? hit.state : null,
         notesMode,
         mainPath: mainPathNodes ? mainPathNodes.has(n.id) : false,
