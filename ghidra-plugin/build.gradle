@@ -1,0 +1,38 @@
+// PCODE Grapher Ghidra extension.
+//
+// Build against the Ghidra installation that will load the extension:
+//   Windows: set "GHIDRA_INSTALL_DIR=C:\path\to\ghidra_12.1.3_PUBLIC"
+//   Linux:   GHIDRA_INSTALL_DIR=/opt/ghidra_12.1.3_PUBLIC ./gradlew buildExtension
+//
+// A command-line -PGHIDRA_INSTALL_DIR=... or -PghidraInstallDir=... also works.
+
+plugins {
+    id 'java'
+}
+
+// Source có comment tiếng Việt. Nếu JVM build chạy với default charset khác
+// Source có comment tiếng Việt. Nếu JVM build chạy với default charset khác UTF-8
+// (Windows-1252/ASCII), javac báo "unmappable character". Trước đây pom.xml đặt
+// <project.build.sourceEncoding>; từ 1.7.0 pom.xml đã bị xoá nên Gradle là nơi khai báo
+// encoding UTF-8 (Gradle).
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+def ghidraInstallDir = providers.gradleProperty('GHIDRA_INSTALL_DIR')
+    .orElse(providers.gradleProperty('ghidraInstallDir'))
+    .orElse(providers.environmentVariable('GHIDRA_INSTALL_DIR'))
+    .orNull
+
+if (!ghidraInstallDir) {
+    throw new GradleException(
+        'Missing GHIDRA_INSTALL_DIR. Example:\n' +
+        '  gradlew.bat buildExtension -PGHIDRA_INSTALL_DIR="C:\\path\\to\\ghidra_12.1.3_PUBLIC"')
+}
+if (!file(ghidraInstallDir).isDirectory()) {
+    throw new GradleException('Ghidra installation directory not found: ' + ghidraInstallDir)
+}
+
+// Ghidra's official extension script supplies the exact compile classpath,
+// extension layout, source archive and distributable ZIP task.
+apply from: new File(ghidraInstallDir).getCanonicalPath() + '/support/buildExtension.gradle'

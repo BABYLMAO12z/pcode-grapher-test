@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>pcode-grapher — xem trước màu syntax (v4.1)</title>
+<style>
+  body{margin:0;padding:24px;font:14px/1.5 system-ui,sans-serif;background:#0d1117;color:#c9d1d9}
+  h1{font-size:17px;margin:0 0 4px}
+  .sub{color:#8b949e;font-size:12.5px;margin-bottom:18px}
+  .row{display:flex;gap:20px;flex-wrap:wrap}
+  .panel{border-radius:10px;padding:16px;min-width:430px;border:1px solid #30363d}
+  .dark{background:#1b222d}
+  .light{background:#ffffff;border-color:#c3ccd6;color:#1f2328}
+  .tag{position:relative;top:-26px;float:right;font:700 11px system-ui;padding:2px 8px;border-radius:6px}
+  .dark .tag{background:#30363d;color:#8b949e}
+  .light .tag{background:#eef1f4;color:#57606a}
+  code,pre{font:12.5px/19px "Cascadia Code","SF Mono",Consolas,monospace;white-space:pre;margin:0}
+  .legend{margin-top:12px;font-size:11px;display:flex;flex-wrap:wrap;gap:8px 14px;color:#8b949e}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+  /* ---- dark tokens (khớp app.css :root) ---- */
+  .d-txt{color:#c9d1d9}.d-kw{color:#ff7b9a}.d-ty{color:#79c0ff}.d-fn{color:#9db4ff}
+  .d-gop{color:#f0a468}.d-num{color:#e3b341}.d-str{color:#7fd8b0}.d-addr{color:#6ec8d4}
+  .d-var{color:#9cdcfe}
+  /* ---- light tokens (khớp app.css :root.light) ---- */
+  .l-txt{color:#1f2328}.l-kw{color:#c61050}.l-ty{color:#0550ae}.l-fn{color:#6e40c9}
+  .l-gop{color:#ad4500}.l-num{color:#8a5a00}.l-str{color:#0a7655}.l-addr{color:#0e7490}
+  .l-var{color:#001080}
+  .note{margin-top:22px;font-size:12.5px;color:#8b949e;max-width:900px}
+  .note b{color:#c9d1d9}
+</style>
+</head>
+<body>
+<h1>pcode-grapher · màu syntax block (v4.1 — var theo VSCode Dark+/Light+)</h1>
+<div class="sub">Biến = MỘT màu nhất quán (sky #9cdcfe / navy #001080) · type/function/keyword giữ hệ hiện tại · mở file này trong trình duyệt để so sánh trực tiếp 2 theme</div>
+<div class="row">
+
+<div class="panel dark"><span class="tag">DARK</span><pre><span class="d-var">pQVar7</span> = <span class="d-ty">QMessageLogger</span>::<span class="d-fn">QMessageLogger</span>(<span class="d-var">local_110</span>, <span class="d-num">0</span>, <span class="d-num">0</span>, <span class="d-num">0</span>);
+<span class="d-var">pQVar8</span> = <span class="d-ty">QMessageLogger</span>::<span class="d-fn">warning</span>(<span class="d-var">pQVar7</span>);
+<span class="d-var">pQVar8</span> = <span class="d-ty">QDebug</span>::<span class="d-kw">operator</span> &lt;&lt; (<span class="d-var">pQVar8</span>, <span class="d-str">"[active] phan hoi khong doc duoc:"</span>);
+<span class="d-ty">QDebug</span>::<span class="d-kw">operator</span> &lt;&lt; (<span class="d-var">pQVar8</span>, <span class="d-var">local_118</span>);
+<span class="d-ty">QDebug</span>::~<span class="d-ty">QDebug</span>(&amp;<span class="d-var">local_res8</span>);
+<span class="d-var">pAVar1</span> = <span class="d-var">param_1</span>-&gt;<span class="d-var">svc</span>;
+<span class="d-var">local_res8</span> = <span class="d-var">local_res8</span> &amp; <span class="d-num">18446744073709551360</span>;
+<span class="d-var">pQVar9</span> = <span class="d-addr">FUN_140043820</span>(&amp;<span class="d-var">local_res8</span>, <span class="d-var">local_140</span>);
+<span class="d-addr">FUN_1400305f0</span>(&amp;<span class="d-var">local_148</span>, <span class="d-var">pQVar9</span>);
+<span class="d-ty">QString</span>::~<span class="d-ty">QString</span>(<span class="d-var">local_140</span>);
+<span class="d-ty">lazy</span>::<span class="d-ty">ActivationService</span>::<span class="d-fn">activationFailed</span>(<span class="d-var">pAVar1</span>, <span class="d-num">4294957297</span>, &amp;<span class="d-var">local_148</span>);
+<span class="d-var">pQVar9</span> = &amp;<span class="d-var">local_148</span>;</pre>
+<div class="legend"><span><i style="background:#9cdcfe"></i>var</span><span><i style="background:#79c0ff"></i>type</span><span><i style="background:#9db4ff"></i>func</span><span><i style="background:#6ec8d4"></i>addr/FUN_</span><span><i style="background:#ff7b9a"></i>keyword</span><span><i style="background:#7fd8b0"></i>string</span><span><i style="background:#e3b341"></i>number</span></div>
+</div>
+
+<div class="panel light"><span class="tag">LIGHT</span><pre><span class="l-var">pQVar7</span> = <span class="l-ty">QMessageLogger</span>::<span class="l-fn">QMessageLogger</span>(<span class="l-var">local_110</span>, <span class="l-num">0</span>, <span class="l-num">0</span>, <span class="l-num">0</span>);
+<span class="l-var">pQVar8</span> = <span class="l-ty">QMessageLogger</span>::<span class="l-fn">warning</span>(<span class="l-var">pQVar7</span>);
+<span class="l-var">pQVar8</span> = <span class="l-ty">QDebug</span>::<span class="l-kw">operator</span> &lt;&lt; (<span class="l-var">pQVar8</span>, <span class="l-str">"[active] phan hoi khong doc duoc:"</span>);
+<span class="l-ty">QDebug</span>::<span class="l-kw">operator</span> &lt;&lt; (<span class="l-var">pQVar8</span>, <span class="l-var">local_118</span>);
+<span class="l-ty">QDebug</span>::~<span class="l-ty">QDebug</span>(&amp;<span class="l-var">local_res8</span>);
+<span class="l-var">pAVar1</span> = <span class="l-var">param_1</span>-&gt;<span class="l-var">svc</span>;
+<span class="l-var">local_res8</span> = <span class="l-var">local_res8</span> &amp; <span class="l-num">18446744073709551360</span>;
+<span class="l-var">pQVar9</span> = <span class="l-addr">FUN_140043820</span>(&amp;<span class="l-var">local_res8</span>, <span class="l-var">local_140</span>);
+<span class="l-addr">FUN_1400305f0</span>(&amp;<span class="l-var">local_148</span>, <span class="l-var">pQVar9</span>);
+<span class="l-ty">QString</span>::~<span class="l-ty">QString</span>(<span class="l-var">local_140</span>);
+<span class="l-ty">lazy</span>::<span class="l-ty">ActivationService</span>::<span class="l-fn">activationFailed</span>(<span class="l-var">pAVar1</span>, <span class="l-num">4294957297</span>, &amp;<span class="l-var">local_148</span>);
+<span class="l-var">pQVar9</span> = &amp;<span class="l-var">local_148</span>;</pre>
+<div class="legend"><span><i style="background:#001080"></i>var</span><span><i style="background:#0550ae"></i>type</span><span><i style="background:#6e40c9"></i>func</span><span><i style="background:#0e7490"></i>addr/FUN_</span><span><i style="background:#c61050"></i>keyword</span><span><i style="background:#0a7655"></i>string</span><span><i style="background:#8a5a00"></i>number</span></div>
+</div>
+
+</div>
+<div class="note"><b>Vì sao chọn màu này:</b> khảo sát VSCode Dark+ / Dark 2026 / One Dark Pro / Tokyo Night / Catppuccin (tháng 9/2026). Mọi hue riêng trong app đã "có chủ" (rose=kw, amber=gop+attn, mint=str, teal=addr, vàng=num, lavender=fn, tím=AI-note) nên các phương án đỏ/tím/xanh lá đều đâm nhau. Cách VSCode: <b>biến = cùng family azure với type nhưng SÁNG hơn hẳn</b> (#9cdcfe trên nền tối, #001080 trên nền sáng) → vừa nhất quán, vừa tách bằng độ sáng. Trace một biến cụ thể: click lên token — toàn bộ nơi xuất hiện cùng sáng.</div>
+</body>
+</html>
